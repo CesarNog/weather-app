@@ -62,9 +62,14 @@ parameter_handlers: Dict[str, Callable[..., Dict[str, Union[str, int, float]]]] 
 }
 
 def handle_temperature(forecast_day: Dict[str, Any], city: str, days: int, unit: str) -> Dict[str, str]:
-    temp_key = f"avgtemp_{unit.lower()}"
-    temperature = forecast_day["day"].get(temp_key, "N/A")
-    return {"message": f"The average temperature in {city} in {days} days will be {temperature}°{unit}."}
+    temp_keys = {"avgtemp_c": "avgtemp_c", "avgtemp_f": "avgtemp_f"}
+    temp_key = temp_keys[f"avgtemp_{unit.lower()}"]
+    avg_temp = forecast_day["day"].get(temp_key, "N/A")
+    min_temp = forecast_day["day"].get("mintemp_{}".format(unit.lower()), "N/A")
+    max_temp = forecast_day["day"].get("maxtemp_{}".format(unit.lower()), "N/A")
+    return {
+        "message": f"The average temperature in {city} in {days} days will be {avg_temp}°{unit}. The minimum temperature will be {min_temp}°{unit} and the maximum {max_temp}°{unit}."
+    }
 
 def handle_rain(forecast_day: Dict[str, Any], city: str, days: int) -> Dict[str, str]:
     rain_mm = forecast_day["day"].get("totalprecip_mm", 0)
